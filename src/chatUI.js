@@ -1,6 +1,9 @@
 import { generateResponse } from "./generateResponse.js";
 import { parseMarkdownToDOM } from "./parseMarkdown.js";
 
+let signIn = true;
+const storedUser = sessionStorage.getItem("currentUser");
+
 // Create the complete chatbot UI with JavaScript
 function createChatbotUI() {
   // Create main container
@@ -58,12 +61,16 @@ function createChatbotUI() {
   welcomePara1.appendChild(welcomeText1);
 
   const welcomePara2 = document.createElement("p");
-  const welcomeText2 = document.createTextNode(
-    "I'm here to help with dating advice, communication tips, conflict resolution, and relationship guidance. What's on your mind?"
-  );
+  const welcomeText2 = !signIn
+    ? document.createTextNode(
+        "I'm here to help with dating advice, communication tips, conflict resolution, and relationship guidance. What's on your mind?"
+      )
+    : document.createTextNode(
+        `Welcome back, ${JSON.parse(storedUser).name}! 💕, how may I help you?`
+      );
   welcomePara2.appendChild(welcomeText2);
 
-  messageContent.appendChild(welcomePara1);
+  !signIn && messageContent.appendChild(welcomePara1);
   messageContent.appendChild(welcomePara2);
 
   const messageTime = document.createElement("div");
@@ -232,7 +239,7 @@ async function sendMessage(chatbot) {
 //   // Scroll to bottom
 //   container.scrollTop = container.scrollHeight;
 // }
-function addMessage(container, text, sender) {
+export function addMessage(container, text, sender) {
   const messageDiv = document.createElement("div");
   messageDiv.className = `message ${sender}-message`;
 
