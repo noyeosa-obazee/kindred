@@ -1,0 +1,266 @@
+import { generateResponse } from "./generateResponse.js";
+import { parseMarkdownToDOM } from "./parseMarkdown.js";
+
+// Create the complete chatbot UI with JavaScript
+function createChatbotUI() {
+  // Create main container
+  const chatbotContainer = document.createElement("div");
+  chatbotContainer.className = "chatbot-container";
+
+  // Create header
+  const header = document.createElement("div");
+  header.className = "chatbot-header";
+
+  const avatar = document.createElement("div");
+  avatar.className = "chatbot-avatar";
+  const avatarText = document.createTextNode("💬");
+  avatar.appendChild(avatarText);
+
+  const headerText = document.createElement("div");
+  headerText.className = "chatbot-header-text";
+
+  const title = document.createElement("h3");
+  const titleText = document.createTextNode("Relationship Advisor");
+  title.appendChild(titleText);
+
+  const status = document.createElement("p");
+  const statusText = document.createTextNode("Online • Ready to help");
+  status.appendChild(statusText);
+  status.className = "status";
+
+  headerText.appendChild(title);
+  headerText.appendChild(status);
+  header.appendChild(avatar);
+  header.appendChild(headerText);
+
+  //   // Create close button
+  //   const closeBtn = document.createElement("button");
+  //   closeBtn.className = "close-btn";
+  //   const closeText = document.createTextNode("×");
+  //   closeBtn.appendChild(closeText);
+  //   header.appendChild(closeBtn);
+
+  // Create messages container
+  const messagesContainer = document.createElement("div");
+  messagesContainer.className = "chatbot-messages";
+
+  // Create welcome message
+  const welcomeMsg = document.createElement("div");
+  welcomeMsg.className = "message bot-message";
+
+  const messageContent = document.createElement("div");
+  messageContent.className = "message-content";
+
+  const welcomePara1 = document.createElement("p");
+  const welcomeText1 = document.createTextNode(
+    "Hello! I'm your relationship advisor 💕"
+  );
+  welcomePara1.appendChild(welcomeText1);
+
+  const welcomePara2 = document.createElement("p");
+  const welcomeText2 = document.createTextNode(
+    "I'm here to help with dating advice, communication tips, conflict resolution, and relationship guidance. What's on your mind?"
+  );
+  welcomePara2.appendChild(welcomeText2);
+
+  messageContent.appendChild(welcomePara1);
+  messageContent.appendChild(welcomePara2);
+
+  const messageTime = document.createElement("div");
+  messageTime.className = "message-time";
+  const timeText = document.createTextNode(getCurrentTime());
+  messageTime.appendChild(timeText);
+
+  welcomeMsg.appendChild(messageContent);
+  welcomeMsg.appendChild(messageTime);
+  messagesContainer.appendChild(welcomeMsg);
+
+  // Create input area
+  const inputArea = document.createElement("div");
+  inputArea.className = "chatbot-input-area";
+
+  const inputWrapper = document.createElement("div");
+  inputWrapper.className = "input-wrapper";
+
+  const textInput = document.createElement("textarea");
+  textInput.className = "chatbot-input";
+  textInput.placeholder = "Ask about relationships, dating, communication...";
+  textInput.rows = 1;
+
+  const sendBtn = document.createElement("button");
+  sendBtn.className = "send-btn";
+
+  // Create SVG send icon manually
+  const sendSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  sendSvg.setAttribute("width", "20");
+  sendSvg.setAttribute("height", "20");
+  sendSvg.setAttribute("viewBox", "0 0 24 24");
+  sendSvg.setAttribute("fill", "currentColor");
+
+  const sendPath = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "path"
+  );
+  sendPath.setAttribute("d", "M2.01 21L23 12 2.01 3 2 10l15 2-15 2z");
+  sendSvg.appendChild(sendPath);
+  sendBtn.appendChild(sendSvg);
+
+  inputWrapper.appendChild(textInput);
+  inputWrapper.appendChild(sendBtn);
+  inputArea.appendChild(inputWrapper);
+
+  // Create typing indicator
+  const typingIndicator = document.createElement("div");
+  typingIndicator.className = "typing-indicator";
+
+  const typingDots = document.createElement("div");
+  typingDots.className = "typing-dots";
+
+  const dot1 = document.createElement("span");
+  const dot2 = document.createElement("span");
+  const dot3 = document.createElement("span");
+
+  typingDots.appendChild(dot1);
+  typingDots.appendChild(dot2);
+  typingDots.appendChild(dot3);
+
+  const typingText = document.createElement("p");
+  const typingTextContent = document.createTextNode("AI is thinking...");
+  typingText.appendChild(typingTextContent);
+
+  typingIndicator.appendChild(typingDots);
+  typingIndicator.appendChild(typingText);
+  typingIndicator.style.display = "none";
+
+  // Assemble everything
+  chatbotContainer.appendChild(header);
+  chatbotContainer.appendChild(messagesContainer);
+  chatbotContainer.appendChild(typingIndicator);
+  chatbotContainer.appendChild(inputArea);
+
+  return {
+    container: chatbotContainer,
+    messagesContainer: messagesContainer,
+    textInput: textInput,
+    sendBtn: sendBtn,
+    // closeBtn: closeBtn,
+    typingIndicator: typingIndicator,
+  };
+}
+
+function getCurrentTime() {
+  const now = new Date();
+  return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+// Usage: Add to your page
+function initChatbot() {
+  const chatbot = createChatbotUI();
+  document.body.appendChild(chatbot.container);
+
+  // Add event listeners
+  chatbot.sendBtn.addEventListener("click", () => sendMessage(chatbot));
+  chatbot.textInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(chatbot);
+    }
+  });
+
+  //   chatbot.closeBtn.addEventListener("click", () => {
+  //     chatbot.container.style.display = "none";
+  //   });
+
+  // Auto-resize textarea
+  chatbot.textInput.addEventListener("input", function () {
+    this.style.height = "auto";
+    this.style.height = Math.min(this.scrollHeight, 120) + "px";
+  });
+
+  return chatbot;
+}
+
+async function sendMessage(chatbot) {
+  const message = chatbot.textInput.value.trim();
+  if (!message) return;
+
+  // Add user message
+  addMessage(chatbot.messagesContainer, message, "user");
+  chatbot.textInput.value = "";
+  chatbot.textInput.style.height = "auto";
+
+  // Show typing indicator
+  chatbot.typingIndicator.style.display = "flex";
+  chatbot.messagesContainer.scrollTop = chatbot.messagesContainer.scrollHeight;
+
+  // Simulate AI response (replace with actual API call)
+
+  try {
+    const aiResponse = await generateResponse(message);
+    chatbot.typingIndicator.style.display = "none";
+    addMessage(chatbot.messagesContainer, aiResponse, "bot");
+  } catch (error) {
+    chatbot.typingIndicator.style.display = "none";
+    addMessage(
+      chatbot.messagesContainer,
+      "Sorry, I encountered an error. Please try again",
+      "bot"
+    );
+  }
+}
+// function addMessage(container, text, sender) {
+//   const messageDiv = document.createElement("div");
+//   messageDiv.className = `message ${sender}-message`;
+
+//   const messageContent = document.createElement("div");
+//   messageContent.className = "message-content";
+
+//   const messageText = document.createElement("p");
+//   const messageTextNode = document.createTextNode(text);
+//   messageText.appendChild(messageTextNode);
+//   messageContent.appendChild(messageText);
+
+//   const messageTime = document.createElement("div");
+//   messageTime.className = "message-time";
+//   const timeText = document.createTextNode(getCurrentTime());
+//   messageTime.appendChild(timeText);
+
+//   messageDiv.appendChild(messageContent);
+//   messageDiv.appendChild(messageTime);
+//   container.appendChild(messageDiv);
+
+//   // Scroll to bottom
+//   container.scrollTop = container.scrollHeight;
+// }
+function addMessage(container, text, sender) {
+  const messageDiv = document.createElement("div");
+  messageDiv.className = `message ${sender}-message`;
+
+  const messageContent = document.createElement("div");
+  messageContent.className = "message-content";
+
+  if (sender === "bot") {
+    // Parse markdown and create DOM elements
+    const formattedContent = parseMarkdownToDOM(text);
+    messageContent.appendChild(formattedContent);
+  } else {
+    // User messages stay as plain text
+    const messageText = document.createElement("p");
+    const messageTextNode = document.createTextNode(text);
+    messageText.appendChild(messageTextNode);
+    messageContent.appendChild(messageText);
+  }
+
+  const messageTime = document.createElement("div");
+  messageTime.className = "message-time";
+  const timeText = document.createTextNode(getCurrentTime());
+  messageTime.appendChild(timeText);
+
+  messageDiv.appendChild(messageContent);
+  messageDiv.appendChild(messageTime);
+  container.appendChild(messageDiv);
+
+  container.scrollTop = container.scrollHeight;
+}
+// Initialize chatbot when script loads
+export { initChatbot };
