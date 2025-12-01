@@ -57,28 +57,17 @@ export function showAuthPage() {
 
 export function initializeMainApp() {
   document.body.textContent = "";
-  // Your existing main app initialization
-  //   let mainAppInitialized = false;
-  //   if (mainAppInitialized) {
-  //     console.log("Main app already initialized");
-  //     return;
-  //   }
 
-  //   mainAppInitialized = true;
+  // Your existing main app initialization
   initChatbot();
   initNavigation();
 
-  //   // Welcome message
-  //   setTimeout(() => {
-  //     // You'll need to import your addMessage function
-  //     if (currentUser) {
-  //       addMessage(
-  //         messagesContainer,
-  //         `Welcome back, ${currentUser.name}! 💕`,
-  //         "bot"
-  //       );
-  //     }
-  //   }, 500);
+  // Welcome message
+  setTimeout(() => {
+    if (currentUser) {
+      // This will now be handled in chatUI.js
+    }
+  }, 500);
 }
 
 // Export for other modules to use
@@ -92,3 +81,6 @@ export function logout() {
   sessionStorage.removeItem("currentUser");
   location.reload(); // Simple way to reset the app
 }
+
+// Export authDB for other modules
+// export { authDB };

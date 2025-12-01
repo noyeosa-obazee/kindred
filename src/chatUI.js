@@ -1,9 +1,15 @@
 import { generateResponse } from "./generateResponse.js";
 import { parseMarkdownToDOM } from "./parseMarkdown.js";
-import { currentUser } from "./app.js";
+import { currentUser, authDB } from "./app.js";
+import { loadConversations, setCurrentConversation } from "./navBar.js";
 
 let signIn = false;
 const storedUser = sessionStorage.getItem("currentUser");
+
+// Global state
+export let currentConversationId = null;
+export let messagesContainer = null;
+export let chatbotUI = null;
 
 export function setSignIn(state) {
   signIn = state;
@@ -45,15 +51,14 @@ function createChatbotUI() {
   header.appendChild(avatar);
   header.appendChild(headerText);
 
-  //   // Create close button
-  //   const closeBtn = document.createElement("button");
-  //   closeBtn.className = "close-btn";
-  //   const closeText = document.createTextNode("×");
-  //   closeBtn.appendChild(closeText);
-  //   header.appendChild(closeBtn);
+  // Create new chat button in header
+  const newChatHeaderBtn = document.createElement("button");
+  newChatHeaderBtn.className = "new-chat-header-btn";
+  newChatHeaderBtn.textContent = "+ New Chat";
+  header.appendChild(newChatHeaderBtn);
 
   // Create messages container
-  const messagesContainer = document.createElement("div");
+  messagesContainer = document.createElement("div");
   messagesContainer.className = "chatbot-messages";
 
   // Create welcome message
@@ -159,7 +164,7 @@ function createChatbotUI() {
     messagesContainer: messagesContainer,
     textInput: textInput,
     sendBtn: sendBtn,
-    // closeBtn: closeBtn,
+    newChatHeaderBtn: newChatHeaderBtn,
     typingIndicator: typingIndicator,
   };
 }
@@ -169,38 +174,80 @@ function getCurrentTime() {
   return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-// Usage: Add to your page
+// Initialize chatbot
 function initChatbot() {
-  const chatbot = createChatbotUI();
-  document.body.appendChild(chatbot.container);
+  chatbotUI = createChatbotUI();
+  document.body.appendChild(chatbotUI.container);
 
   // Add event listeners
-  chatbot.sendBtn.addEventListener("click", () => sendMessage(chatbot));
-  chatbot.textInput.addEventListener("keypress", (e) => {
+  chatbotUI.sendBtn.addEventListener("click", () => sendMessage(chatbotUI));
+  chatbotUI.textInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendMessage(chatbot);
+      sendMessage(chatbotUI);
     }
   });
 
-  //   chatbot.closeBtn.addEventListener("click", () => {
-  //     chatbot.container.style.display = "none";
-  //   });
+  chatbotUI.newChatHeaderBtn.addEventListener("click", () => {
+    startNewConversation();
+  });
 
   // Auto-resize textarea
-  chatbot.textInput.addEventListener("input", function () {
+  chatbotUI.textInput.addEventListener("input", function () {
     this.style.height = "auto";
     this.style.height = Math.min(this.scrollHeight, 120) + "px";
   });
 
-  return chatbot;
+  return chatbotUI;
+}
+
+export async function startNewConversation() {
+  try {
+    // Clear current conversation
+    currentConversationId = null;
+
+    // Clear messages
+    if (chatbotUI && chatbotUI.messagesContainer) {
+      chatbotUI.messagesContainer.innerHTML = "";
+
+      // Add welcome message
+      const welcomeMsg = document.createElement("div");
+      welcomeMsg.className = "message bot-message";
+
+      const messageContent = document.createElement("div");
+      messageContent.className = "message-content";
+
+      const welcomePara = document.createElement("p");
+      const welcomeText = document.createTextNode(
+        `Hello ${currentUser.name}! I'm ready for a new conversation. What would you like to discuss? 💕`
+      );
+      welcomePara.appendChild(welcomeText);
+      messageContent.appendChild(welcomePara);
+
+      const messageTime = document.createElement("div");
+      messageTime.className = "message-time";
+      const timeText = document.createTextNode(getCurrentTime());
+      messageTime.appendChild(timeText);
+
+      welcomeMsg.appendChild(messageContent);
+      welcomeMsg.appendChild(messageTime);
+      chatbotUI.messagesContainer.appendChild(welcomeMsg);
+    }
+
+    // Load conversations in sidebar
+    if (typeof loadConversations === "function") {
+      await loadConversations();
+    }
+  } catch (error) {
+    console.error("Error starting new conversation:", error);
+  }
 }
 
 async function sendMessage(chatbot) {
   const message = chatbot.textInput.value.trim();
   if (!message) return;
 
-  // Add user message
+  // Add user message to UI
   addMessage(chatbot.messagesContainer, message, "user");
   chatbot.textInput.value = "";
   chatbot.textInput.style.height = "auto";
@@ -209,12 +256,49 @@ async function sendMessage(chatbot) {
   chatbot.typingIndicator.style.display = "flex";
   chatbot.messagesContainer.scrollTop = chatbot.messagesContainer.scrollHeight;
 
-  // Simulate AI response (replace with actual API call)
-
   try {
+    // Create conversation if doesn't exist
+    if (!currentConversationId && currentUser) {
+      const newConvo = await authDB.createConversation(currentUser.id);
+      currentConversationId = newConvo.id;
+
+      // Update navbar
+      if (typeof loadConversations === "function") {
+        await loadConversations();
+      }
+    }
+
+    // Save user message to database
+    if (currentConversationId) {
+      const userMessage = {
+        content: message,
+        sender: "user",
+        timestamp: new Date(),
+      };
+      await authDB.addMessageToConversation(currentConversationId, userMessage);
+    }
+
+    // Generate AI response
     const aiResponse = await generateResponse(message);
     chatbot.typingIndicator.style.display = "none";
+
+    // Add AI message to UI
     addMessage(chatbot.messagesContainer, aiResponse, "bot");
+
+    // Save AI message to database
+    if (currentConversationId) {
+      const aiMessage = {
+        content: aiResponse,
+        sender: "bot",
+        timestamp: new Date(),
+      };
+      await authDB.addMessageToConversation(currentConversationId, aiMessage);
+
+      // Update conversations list
+      if (typeof loadConversations === "function") {
+        await loadConversations();
+      }
+    }
   } catch (error) {
     chatbot.typingIndicator.style.display = "none";
     addMessage(
@@ -222,32 +306,10 @@ async function sendMessage(chatbot) {
       "Sorry, I encountered an error. Please try again",
       "bot"
     );
+    console.error("Error sending message:", error);
   }
 }
-// function addMessage(container, text, sender) {
-//   const messageDiv = document.createElement("div");
-//   messageDiv.className = `message ${sender}-message`;
 
-//   const messageContent = document.createElement("div");
-//   messageContent.className = "message-content";
-
-//   const messageText = document.createElement("p");
-//   const messageTextNode = document.createTextNode(text);
-//   messageText.appendChild(messageTextNode);
-//   messageContent.appendChild(messageText);
-
-//   const messageTime = document.createElement("div");
-//   messageTime.className = "message-time";
-//   const timeText = document.createTextNode(getCurrentTime());
-//   messageTime.appendChild(timeText);
-
-//   messageDiv.appendChild(messageContent);
-//   messageDiv.appendChild(messageTime);
-//   container.appendChild(messageDiv);
-
-//   // Scroll to bottom
-//   container.scrollTop = container.scrollHeight;
-// }
 export function addMessage(container, text, sender) {
   const messageDiv = document.createElement("div");
   messageDiv.className = `message ${sender}-message`;
@@ -278,5 +340,57 @@ export function addMessage(container, text, sender) {
 
   container.scrollTop = container.scrollHeight;
 }
-// Initialize chatbot when script loads
+
+// Load conversation messages
+export async function loadConversationMessages(conversationId) {
+  try {
+    if (!chatbotUI || !chatbotUI.messagesContainer) return;
+
+    const conversation = await authDB.getConversation(conversationId);
+    if (!conversation) return;
+
+    // Set current conversation
+    currentConversationId = conversationId;
+
+    // Clear current messages
+    chatbotUI.messagesContainer.innerHTML = "";
+
+    // Load all messages
+    if (conversation.messages && conversation.messages.length > 0) {
+      conversation.messages.forEach((message) => {
+        addMessage(
+          chatbotUI.messagesContainer,
+          message.content,
+          message.sender
+        );
+      });
+    } else {
+      // Add welcome message if no messages
+      const welcomeMsg = document.createElement("div");
+      welcomeMsg.className = "message bot-message";
+
+      const messageContent = document.createElement("div");
+      messageContent.className = "message-content";
+
+      const welcomePara = document.createElement("p");
+      const welcomeText = document.createTextNode(
+        `Welcome back to this conversation! Continue where you left off. 💕`
+      );
+      welcomePara.appendChild(welcomeText);
+      messageContent.appendChild(welcomePara);
+
+      const messageTime = document.createElement("div");
+      messageTime.className = "message-time";
+      const timeText = document.createTextNode(getCurrentTime());
+      messageTime.appendChild(timeText);
+
+      welcomeMsg.appendChild(messageContent);
+      welcomeMsg.appendChild(messageTime);
+      chatbotUI.messagesContainer.appendChild(welcomeMsg);
+    }
+  } catch (error) {
+    console.error("Error loading conversation messages:", error);
+  }
+}
+
 export { initChatbot };

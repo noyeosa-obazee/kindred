@@ -647,3 +647,78 @@ input {
 .chatbot-messages::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
+/* Add to existing style.css */
+
+/* New chat button in header */
+.new-chat-header-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  backdrop-filter: blur(10px);
+}
+
+.new-chat-header-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Empty conversations message */
+.empty-conversations {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Conversation item clickable */
+.conversation-item {
+  cursor: pointer;
+}
+
+/* AI heading styles for markdown */
+.ai-heading {
+  margin: 15px 0 10px 0;
+  color: #333;
+}
+
+.ai-heading:first-child {
+  margin-top: 0;
+}
+
+/* List styles for markdown */
+.ai-message ul,
+.ai-message ol {
+  margin: 10px 0 10px 20px;
+  padding-left: 20px;
+}
+
+.ai-message li {
+  margin-bottom: 5px;
+}
+
+/* Strong and emphasis styles */
+.ai-message strong {
+  font-weight: 600;
+  color: #333;
+}
+
+.ai-message em {
+  font-style: italic;
+}
+
+/* Better spacing for messages with markdown */
+.message.bot-message .message-content p {
+  margin-bottom: 10px;
+}
+
+.message.bot-message .message-content p:last-child {
+  margin-bottom: 0;
+}
