@@ -1,4 +1,3 @@
-// auth.js
 class AuthDatabase {
   constructor() {
     this.db = null;
@@ -14,8 +13,8 @@ class AuthDatabase {
 
       request.onsuccess = () => {
         this.db = request.result;
-        console.log("Database initialized successfully");
-        console.log("Object stores:", Array.from(this.db.objectStoreNames));
+        // console.log("Database initialized successfully");
+        // console.log("Object stores:", Array.from(this.db.objectStoreNames));
         resolve(this.db);
       };
 
@@ -111,21 +110,6 @@ class AuthDatabase {
     });
   }
 
-  // ... rest of the methods remain the same ...
-
-  // User methods
-  //   async getUserByName(name) {
-  //     return new Promise((resolve, reject) => {
-  //       const transaction = this.db.transaction(["users"], "readonly");
-  //       const store = transaction.objectStore("users");
-  //       const index = store.index("name");
-  //       const request = index.get(name);
-
-  //       request.onsuccess = () => resolve(request.result);
-  //       request.onerror = () => reject(request.error);
-  //     });
-  //   }
-
   async getUserByUsername(username) {
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction(["users"], "readonly");
@@ -139,21 +123,6 @@ class AuthDatabase {
   }
 
   async createUser(username, displayName) {
-    // return new Promise((resolve, reject) => {
-    //   const transaction = this.db.transaction(["users"], "readwrite");
-    //   const store = transaction.objectStore("users");
-
-    //   const user = {
-    //     name: name.trim(),
-    //     createdAt: new Date(),
-    //     lastLogin: new Date(),
-    //   };
-
-    //   const request = store.add(user);
-
-    //   request.onsuccess = () => resolve({ id: request.result, ...user });
-    //   request.onerror = () => reject(request.error);
-    // });
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction(["users"], "readwrite");
       const store = transaction.objectStore("users");

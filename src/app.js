@@ -12,23 +12,18 @@ export let authDB = null;
 
 export async function initApp() {
   try {
-    // 1. Initialize database first
     authDB = authDataBase;
     await authDB.init();
 
-    // 2. Check for existing session
     if (!checkExistingSession()) {
-      // 3. No session - show sign in page
       showAuthPage();
       setSignIn(false);
     } else {
       setSignIn(true);
     }
-
-    // If session exists, initializeMainApp() is called automatically
   } catch (error) {
     console.error("App initialization failed:", error);
-    throw error; // Re-throw to handle in index.js
+    throw error;
   }
 }
 
@@ -37,8 +32,8 @@ export function checkExistingSession() {
     const storedUser = sessionStorage.getItem("currentUser");
 
     if (currentUser) {
-      console.log(currentUser);
-      //   currentUser = JSON.parse(storedUser);
+      //   console.log(currentUser);
+
       initializeMainApp();
       return true;
     }
@@ -58,35 +53,22 @@ export function showAuthPage() {
 export function initializeMainApp() {
   document.body.textContent = "";
 
-  // Your existing main app initialization
   initChatbot();
   initNavigation();
 
-  // Welcome message
   setTimeout(() => {
     if (currentUser) {
-      // This will now be handled in chatUI.js
     }
   }, 500);
 }
 
-// Export for other modules to use
 export function setCurrentUser(user) {
   sessionStorage.setItem("currentUser", JSON.stringify(user));
   currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 }
 
-// export function logout() {
-//   currentUser = null;
-//   sessionStorage.removeItem("currentUser");
-//   location.reload(); // Simple way to reset the app
-// }
-// Already exists in your app.js, just ensure it's exported
 export function logout() {
   currentUser = null;
   sessionStorage.removeItem("currentUser");
-  location.reload(); // Simple way to reset the app
+  location.reload();
 }
-
-// Export authDB for other modules
-// export { authDB };

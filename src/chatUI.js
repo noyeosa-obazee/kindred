@@ -51,7 +51,7 @@ function createChatbotUI() {
   status.className = "status";
 
   headerText.appendChild(title);
-  //   headerText.appendChild(status);
+
   header.appendChild(headerText);
   header.appendChild(avatar);
 
@@ -109,7 +109,7 @@ function createChatbotUI() {
 
   const textInput = document.createElement("textarea");
   textInput.className = "chatbot-input";
-  textInput.placeholder = "Ask about relationships, dating, communication...";
+  textInput.placeholder = "Ask about relationships, dating, dialogue...";
   textInput.rows = 1;
 
   const sendBtn = document.createElement("button");
