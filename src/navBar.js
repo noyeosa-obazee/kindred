@@ -3,50 +3,6 @@ import { loadConversationMessages, startNewConversation } from "./chatUI.js";
 
 let conversationsList = null;
 
-// function createNavigationMenu() {
-//   // Create main nav container
-//   const nav = document.createElement("div");
-//   nav.className = "chatbot-nav";
-
-//   // Create toggle button
-//   const toggleBtn = document.createElement("button");
-//   toggleBtn.className = "nav-toggle";
-//   toggleBtn.innerHTML = "☰";
-
-//   // Create sidebar
-//   const sidebar = document.createElement("div");
-//   sidebar.className = "nav-sidebar";
-
-//   // Create header
-//   const sidebarHeader = document.createElement("div");
-//   sidebarHeader.className = "sidebar-header";
-
-//   const sidebarTitle = document.createElement("h3");
-//   sidebarTitle.textContent = "Conversations";
-//   sidebarHeader.appendChild(sidebarTitle);
-
-//   const newChatBtn = document.createElement("button");
-//   newChatBtn.className = "new-chat-btn";
-//   newChatBtn.innerHTML = "+ New Chat";
-//   sidebarHeader.appendChild(newChatBtn);
-
-//   // Create conversations list
-//   conversationsList = document.createElement("div");
-//   conversationsList.className = "conversations-list";
-
-//   // Assemble sidebar
-//   sidebar.appendChild(sidebarHeader);
-//   sidebar.appendChild(conversationsList);
-
-//   // Assemble nav
-//   nav.appendChild(toggleBtn);
-//   nav.appendChild(sidebar);
-
-//   // Add event listeners
-//   setupNavEvents(nav, sidebar, toggleBtn, newChatBtn);
-
-//   return nav;
-// }
 function createNavigationMenu() {
   // Create main nav container
   const nav = document.createElement("div");
@@ -87,7 +43,7 @@ function createNavigationMenu() {
 
   const userName = document.createElement("div");
   userName.className = "sidebar-user-name";
-  userName.textContent = currentUser ? currentUser.name : "User";
+  userName.textContent = currentUser ? currentUser.displayName : "User";
 
   const logoutBtn = document.createElement("button");
   logoutBtn.className = "logout-btn";
@@ -205,49 +161,6 @@ function formatConversationDate(date) {
   }
 }
 
-// function setupNavEvents(nav, sidebar, toggleBtn, newChatBtn) {
-//   // Toggle sidebar
-//   toggleBtn.addEventListener("click", () => {
-//     sidebar.classList.toggle("active");
-//   });
-
-//   // New chat button
-//   newChatBtn.addEventListener("click", async () => {
-//     await startNewConversation();
-//     sidebar.classList.remove("active");
-//   });
-
-//   // Close sidebar when clicking outside
-//   document.addEventListener("click", (e) => {
-//     if (!nav.contains(e.target) && sidebar.classList.contains("active")) {
-//       sidebar.classList.remove("active");
-//     }
-//   });
-
-//   // Conversation menu toggle
-//   document.addEventListener("click", (e) => {
-//     if (e.target.classList.contains("conversation-menu-btn")) {
-//       const dropdown = e.target.nextElementSibling;
-//       const allDropdowns = document.querySelectorAll(
-//         ".conversation-menu-dropdown"
-//       );
-
-//       // Close all other dropdowns
-//       allDropdowns.forEach((d) => {
-//         if (d !== dropdown) d.classList.remove("active");
-//       });
-
-//       // Toggle current dropdown
-//       dropdown.classList.toggle("active");
-//       e.stopPropagation();
-//     } else {
-//       // Close all dropdowns when clicking elsewhere
-//       document.querySelectorAll(".conversation-menu-dropdown").forEach((d) => {
-//         d.classList.remove("active");
-//       });
-//     }
-//   });
-// }
 function setupNavEvents(nav, sidebar, toggleBtn, newChatBtn, logoutBtn) {
   // Toggle sidebar
   toggleBtn.addEventListener("click", () => {

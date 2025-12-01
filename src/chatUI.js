@@ -35,14 +35,14 @@ function createChatbotUI() {
 
   const avatar = document.createElement("div");
   avatar.className = "chatbot-avatar";
-  const avatarText = document.createTextNode("💬");
+  const avatarText = document.createTextNode("💕");
   avatar.appendChild(avatarText);
 
   const headerText = document.createElement("div");
   headerText.className = "chatbot-header-text";
 
   const title = document.createElement("h3");
-  const titleText = document.createTextNode("Relationship Advisor");
+  const titleText = document.createTextNode("Kindred");
   title.appendChild(titleText);
 
   const status = document.createElement("p");
@@ -51,9 +51,9 @@ function createChatbotUI() {
   status.className = "status";
 
   headerText.appendChild(title);
-  headerText.appendChild(status);
-  header.appendChild(avatar);
+  //   headerText.appendChild(status);
   header.appendChild(headerText);
+  header.appendChild(avatar);
 
   // Create new chat button in header
   const newChatHeaderBtn = document.createElement("button");
@@ -74,7 +74,7 @@ function createChatbotUI() {
 
   const welcomePara1 = document.createElement("p");
   const welcomeText1 = document.createTextNode(
-    `Hello ${currentUser.name}! I'm your relationship advisor 💕`
+    `Hello ${currentUser.displayName}! I'm your relationship advisor 💕`
   );
   welcomePara1.appendChild(welcomeText1);
 
@@ -227,7 +227,7 @@ export async function startNewConversation() {
 
       const welcomePara = document.createElement("p");
       const welcomeText = document.createTextNode(
-        `Hello ${currentUser.name}! I'm ready for a new conversation. What would you like to discuss? 💕`
+        `Hello ${currentUser.displayName}! I'm ready for a new conversation. What would you like to discuss? 💕`
       );
       welcomePara.appendChild(welcomeText);
       messageContent.appendChild(welcomePara);
@@ -250,114 +250,7 @@ export async function startNewConversation() {
     console.error("Error starting new conversation:", error);
   }
 }
-// export async function startNewConversation() {
-//   try {
-//     // Clear current conversation
-//     currentConversationId = null;
 
-//     // Clear messages
-//     if (chatbotUI && chatbotUI.messagesContainer) {
-//       chatbotUI.messagesContainer.innerHTML = "";
-
-//       // Add welcome message
-//       const welcomeMsg = document.createElement("div");
-//       welcomeMsg.className = "message bot-message";
-
-//       const messageContent = document.createElement("div");
-//       messageContent.className = "message-content";
-
-//       const welcomePara = document.createElement("p");
-//       const welcomeText = document.createTextNode(
-//         `Hello ${currentUser.name}! I'm ready for a new conversation. What would you like to discuss? 💕`
-//       );
-//       welcomePara.appendChild(welcomeText);
-//       messageContent.appendChild(welcomePara);
-
-//       const messageTime = document.createElement("div");
-//       messageTime.className = "message-time";
-//       const timeText = document.createTextNode(getCurrentTime());
-//       messageTime.appendChild(timeText);
-
-//       welcomeMsg.appendChild(messageContent);
-//       welcomeMsg.appendChild(messageTime);
-//       chatbotUI.messagesContainer.appendChild(welcomeMsg);
-//     }
-
-//     // Load conversations in sidebar
-//     if (typeof loadConversations === "function") {
-//       await loadConversations();
-//     }
-//   } catch (error) {
-//     console.error("Error starting new conversation:", error);
-//   }
-// }
-
-// async function sendMessage(chatbot) {
-//   const message = chatbot.textInput.value.trim();
-//   if (!message) return;
-
-//   // Add user message to UI
-//   addMessage(chatbot.messagesContainer, message, "user");
-//   chatbot.textInput.value = "";
-//   chatbot.textInput.style.height = "auto";
-
-//   // Show typing indicator
-//   chatbot.typingIndicator.style.display = "flex";
-//   chatbot.messagesContainer.scrollTop = chatbot.messagesContainer.scrollHeight;
-
-//   try {
-//     // Create conversation if doesn't exist
-//     if (!currentConversationId && currentUser) {
-//       const newConvo = await authDB.createConversation(currentUser.id);
-//       currentConversationId = newConvo.id;
-
-//       // Update navbar
-//       if (typeof loadConversations === "function") {
-//         await loadConversations();
-//       }
-//     }
-
-//     // Save user message to database
-//     if (currentConversationId) {
-//       const userMessage = {
-//         content: message,
-//         sender: "user",
-//         timestamp: new Date(),
-//       };
-//       await authDB.addMessageToConversation(currentConversationId, userMessage);
-//     }
-
-//     // Generate AI response
-//     const aiResponse = await generateResponse(message);
-//     chatbot.typingIndicator.style.display = "none";
-
-//     // Add AI message to UI
-//     addMessage(chatbot.messagesContainer, aiResponse, "bot");
-
-//     // Save AI message to database
-//     if (currentConversationId) {
-//       const aiMessage = {
-//         content: aiResponse,
-//         sender: "bot",
-//         timestamp: new Date(),
-//       };
-//       await authDB.addMessageToConversation(currentConversationId, aiMessage);
-
-//       // Update conversations list
-//       if (typeof loadConversations === "function") {
-//         await loadConversations();
-//       }
-//     }
-//   } catch (error) {
-//     chatbot.typingIndicator.style.display = "none";
-//     addMessage(
-//       chatbot.messagesContainer,
-//       "Sorry, I encountered an error. Please try again",
-//       "bot"
-//     );
-//     console.error("Error sending message:", error);
-//   }
-// }
 async function sendMessage(chatbot) {
   const message = chatbot.textInput.value.trim();
   if (!message) return;
@@ -510,56 +403,5 @@ export async function loadConversationMessages(conversationId) {
     console.error("Error loading conversation messages:", error);
   }
 }
-// // Load conversation messages
-// export async function loadConversationMessages(conversationId) {
-//   try {
-//     if (!chatbotUI || !chatbotUI.messagesContainer) return;
-
-//     const conversation = await authDB.getConversation(conversationId);
-//     if (!conversation) return;
-
-//     // Set current conversation
-//     currentConversationId = conversationId;
-
-//     // Clear current messages
-//     chatbotUI.messagesContainer.innerHTML = "";
-
-//     // Load all messages
-//     if (conversation.messages && conversation.messages.length > 0) {
-//       conversation.messages.forEach((message) => {
-//         addMessage(
-//           chatbotUI.messagesContainer,
-//           message.content,
-//           message.sender
-//         );
-//       });
-//     } else {
-//       // Add welcome message if no messages
-//       const welcomeMsg = document.createElement("div");
-//       welcomeMsg.className = "message bot-message";
-
-//       const messageContent = document.createElement("div");
-//       messageContent.className = "message-content";
-
-//       const welcomePara = document.createElement("p");
-//       const welcomeText = document.createTextNode(
-//         `Welcome back to this conversation! Continue where you left off. 💕`
-//       );
-//       welcomePara.appendChild(welcomeText);
-//       messageContent.appendChild(welcomePara);
-
-//       const messageTime = document.createElement("div");
-//       messageTime.className = "message-time";
-//       const timeText = document.createTextNode(getCurrentTime());
-//       messageTime.appendChild(timeText);
-
-//       welcomeMsg.appendChild(messageContent);
-//       welcomeMsg.appendChild(messageTime);
-//       chatbotUI.messagesContainer.appendChild(welcomeMsg);
-//     }
-//   } catch (error) {
-//     console.error("Error loading conversation messages:", error);
-//   }
-// }
 
 export { initChatbot };
