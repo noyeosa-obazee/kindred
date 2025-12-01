@@ -65,7 +65,7 @@ function createChatbotUI() {
 
   const welcomePara1 = document.createElement("p");
   const welcomeText1 = document.createTextNode(
-    "Hello! I'm your relationship advisor 💕"
+    `Hello ${currentUser.name}! I'm your relationship advisor 💕`
   );
   welcomePara1.appendChild(welcomeText1);
 

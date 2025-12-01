@@ -16,3 +16,25 @@ initApp().catch((error) => {
   //     </div>
   // `;
 });
+
+// function clearEntireDatabase() {
+//     return new Promise((resolve, reject) => {
+//         const request = indexedDB.deleteDatabase('RelationshipChatDB');
+
+//         request.onsuccess = () => {
+//             console.log('Database deleted successfully');
+//             resolve();
+//         };
+
+//         request.onerror = () => reject(request.error);
+//         request.onblocked = () => {
+//             console.log('Database is blocked - close all connections');
+//             reject(new Error('Database blocked'));
+//         };
+//     });
+// }
+
+// // Usage
+// await clearEntireDatabase();
+// // Database will be recreated on next init()
+// sessionStorage.removeItem("currentUser");

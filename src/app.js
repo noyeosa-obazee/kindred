@@ -6,7 +6,8 @@ import { initNavigation } from "./navBar.js";
 
 const messagesContainer = document.querySelector(".chatbot-messages");
 
-export let currentUser = null;
+export let currentUser =
+  JSON.parse(sessionStorage.getItem("currentUser")) || null;
 export let authDB = null;
 
 export async function initApp() {
