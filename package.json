@@ -1,5 +1,5 @@
 {
-  "name": "relationship-ai-advisor",
+  "name": "kindred",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/noyeosa-obazee/relationship-ai-advisor.git"
+    "url": "git+https://github.com/noyeosa-obazee/kindred.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/noyeosa-obazee/relationship-ai-advisor/issues"
+    "url": "https://github.com/noyeosa-obazee/kindred/issues"
   },
-  "homepage": "https://github.com/noyeosa-obazee/relationship-ai-advisor#readme",
+  "homepage": "https://github.com/noyeosa-obazee/kindred#readme",
   "dependencies": {
     "@google/genai": "^1.30.0"
   },
