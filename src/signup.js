@@ -1,6 +1,7 @@
 import { authDB } from "./auth";
 import { createSignInPage } from "./signIn";
 import { loadUserData } from "./loadData";
+import { initApp, setCurrentUser } from "./app";
 
 function showSignUpPage(authContainer, name) {
   authContainer.innerHTML = "";
@@ -71,7 +72,7 @@ function showSignUpPage(authContainer, name) {
   authContainer.appendChild(footer);
 
   // Event listeners
-  form.addEventListener("submit", async () => {
+  signUpBtn.addEventListener("click", async () => {
     //sae story as in sign in page
     const finalName = nameInput.value.trim();
     if (!finalName) {
@@ -86,15 +87,19 @@ function showSignUpPage(authContainer, name) {
 
     try {
       const newUser = await authDB.createUser(finalName);
-      await loadUserData(newUser);
+      setCurrentUser(newUser);
+      await initApp();
     } catch (error) {
       if (error.name === "ConstraintError") {
-        showError(
+        console.error(
           errorMessage,
           "This name is already taken. Please choose another."
         );
       } else {
-        showError(errorMessage, "Failed to create account. Please try again.");
+        console.error(
+          errorMessage,
+          "Failed to create account. Please try again."
+        );
       }
       console.error("Signup error:", error);
     } finally {

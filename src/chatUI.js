@@ -1,8 +1,17 @@
 import { generateResponse } from "./generateResponse.js";
 import { parseMarkdownToDOM } from "./parseMarkdown.js";
+import { currentUser } from "./app.js";
 
-let signIn = true;
+let signIn = false;
 const storedUser = sessionStorage.getItem("currentUser");
+
+export function setSignIn(state) {
+  signIn = state;
+}
+
+export function getSignIn() {
+  return signIn;
+}
 
 // Create the complete chatbot UI with JavaScript
 function createChatbotUI() {
@@ -66,7 +75,7 @@ function createChatbotUI() {
         "I'm here to help with dating advice, communication tips, conflict resolution, and relationship guidance. What's on your mind?"
       )
     : document.createTextNode(
-        `Welcome back, ${JSON.parse(storedUser).name}! 💕, how may I help you?`
+        `Welcome back, ${currentUser.name}! 💕, how may I help you?`
       );
   welcomePara2.appendChild(welcomeText2);
 

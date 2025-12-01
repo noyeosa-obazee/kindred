@@ -1,7 +1,7 @@
 // app.js
 import { authDB as authDataBase } from "./auth.js";
 import { createSignInPage } from "./signIn.js";
-import { initChatbot, addMessage } from "./chatUI.js";
+import { initChatbot, addMessage, signIn, setSignIn } from "./chatUI.js";
 import { initNavigation } from "./navBar.js";
 
 const messagesContainer = document.querySelector(".chatbot-messages");
@@ -19,8 +19,11 @@ export async function initApp() {
     if (!checkExistingSession()) {
       // 3. No session - show sign in page
       showAuthPage();
+      setSignIn(false);
+    } else {
+      setSignIn(true);
     }
-    checkExistingSession();
+
     // If session exists, initializeMainApp() is called automatically
   } catch (error) {
     console.error("App initialization failed:", error);
@@ -32,9 +35,9 @@ export function checkExistingSession() {
   try {
     const storedUser = sessionStorage.getItem("currentUser");
 
-    if (storedUser !== "undefined") {
-      console.log(storedUser);
-      currentUser = JSON.parse(storedUser);
+    if (currentUser) {
+      console.log(currentUser);
+      //   currentUser = JSON.parse(storedUser);
       initializeMainApp();
       return true;
     }
@@ -52,7 +55,15 @@ export function showAuthPage() {
 }
 
 export function initializeMainApp() {
+  document.body.textContent = "";
   // Your existing main app initialization
+  //   let mainAppInitialized = false;
+  //   if (mainAppInitialized) {
+  //     console.log("Main app already initialized");
+  //     return;
+  //   }
+
+  //   mainAppInitialized = true;
   initChatbot();
   initNavigation();
 
@@ -71,8 +82,8 @@ export function initializeMainApp() {
 
 // Export for other modules to use
 export function setCurrentUser(user) {
-  currentUser = user;
   sessionStorage.setItem("currentUser", JSON.stringify(user));
+  currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 }
 
 export function logout() {

@@ -1,6 +1,7 @@
 import { authDB } from "./auth";
 import { showSignUpPage } from "./signup";
 import { loadUserData } from "./loadData";
+import { initApp, setCurrentUser } from "./app";
 
 // auth-ui.js
 function createSignInPage() {
@@ -90,7 +91,7 @@ function setupAuthEvents(
   loadingSpinner,
   errorMessage
 ) {
-  form.addEventListener("submit", async (e) => {
+  signInBtn.addEventListener("click", async (e) => {
     //changed 'sign in button' to 'form' and changed 'click' to 'submit'
     e.preventDefault();
 
@@ -112,7 +113,8 @@ function setupAuthEvents(
       if (existingUser) {
         // User exists - sign them in
         await authDB.updateUserLastLogin(existingUser.id);
-        await loadUserData(existingUser);
+        setCurrentUser(existingUser);
+        await initApp();
       } else {
         // New user - show signup page
         showSignUpPage(container, name);
