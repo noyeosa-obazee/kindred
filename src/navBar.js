@@ -1,8 +1,52 @@
-import { currentUser, authDB } from "./app.js";
+import { currentUser, authDB, logout } from "./app.js";
 import { loadConversationMessages, startNewConversation } from "./chatUI.js";
 
 let conversationsList = null;
 
+// function createNavigationMenu() {
+//   // Create main nav container
+//   const nav = document.createElement("div");
+//   nav.className = "chatbot-nav";
+
+//   // Create toggle button
+//   const toggleBtn = document.createElement("button");
+//   toggleBtn.className = "nav-toggle";
+//   toggleBtn.innerHTML = "☰";
+
+//   // Create sidebar
+//   const sidebar = document.createElement("div");
+//   sidebar.className = "nav-sidebar";
+
+//   // Create header
+//   const sidebarHeader = document.createElement("div");
+//   sidebarHeader.className = "sidebar-header";
+
+//   const sidebarTitle = document.createElement("h3");
+//   sidebarTitle.textContent = "Conversations";
+//   sidebarHeader.appendChild(sidebarTitle);
+
+//   const newChatBtn = document.createElement("button");
+//   newChatBtn.className = "new-chat-btn";
+//   newChatBtn.innerHTML = "+ New Chat";
+//   sidebarHeader.appendChild(newChatBtn);
+
+//   // Create conversations list
+//   conversationsList = document.createElement("div");
+//   conversationsList.className = "conversations-list";
+
+//   // Assemble sidebar
+//   sidebar.appendChild(sidebarHeader);
+//   sidebar.appendChild(conversationsList);
+
+//   // Assemble nav
+//   nav.appendChild(toggleBtn);
+//   nav.appendChild(sidebar);
+
+//   // Add event listeners
+//   setupNavEvents(nav, sidebar, toggleBtn, newChatBtn);
+
+//   return nav;
+// }
 function createNavigationMenu() {
   // Create main nav container
   const nav = document.createElement("div");
@@ -34,16 +78,36 @@ function createNavigationMenu() {
   conversationsList = document.createElement("div");
   conversationsList.className = "conversations-list";
 
+  // Create footer with logout button
+  const sidebarFooter = document.createElement("div");
+  sidebarFooter.className = "sidebar-footer";
+
+  const userInfo = document.createElement("div");
+  userInfo.className = "sidebar-user-info";
+
+  const userName = document.createElement("div");
+  userName.className = "sidebar-user-name";
+  userName.textContent = currentUser ? currentUser.name : "User";
+
+  const logoutBtn = document.createElement("button");
+  logoutBtn.className = "logout-btn";
+  logoutBtn.innerHTML = "🚪 Log Out";
+
+  userInfo.appendChild(userName);
+  sidebarFooter.appendChild(userInfo);
+  sidebarFooter.appendChild(logoutBtn);
+
   // Assemble sidebar
   sidebar.appendChild(sidebarHeader);
   sidebar.appendChild(conversationsList);
+  sidebar.appendChild(sidebarFooter);
 
   // Assemble nav
   nav.appendChild(toggleBtn);
   nav.appendChild(sidebar);
 
   // Add event listeners
-  setupNavEvents(nav, sidebar, toggleBtn, newChatBtn);
+  setupNavEvents(nav, sidebar, toggleBtn, newChatBtn, logoutBtn);
 
   return nav;
 }
@@ -141,7 +205,50 @@ function formatConversationDate(date) {
   }
 }
 
-function setupNavEvents(nav, sidebar, toggleBtn, newChatBtn) {
+// function setupNavEvents(nav, sidebar, toggleBtn, newChatBtn) {
+//   // Toggle sidebar
+//   toggleBtn.addEventListener("click", () => {
+//     sidebar.classList.toggle("active");
+//   });
+
+//   // New chat button
+//   newChatBtn.addEventListener("click", async () => {
+//     await startNewConversation();
+//     sidebar.classList.remove("active");
+//   });
+
+//   // Close sidebar when clicking outside
+//   document.addEventListener("click", (e) => {
+//     if (!nav.contains(e.target) && sidebar.classList.contains("active")) {
+//       sidebar.classList.remove("active");
+//     }
+//   });
+
+//   // Conversation menu toggle
+//   document.addEventListener("click", (e) => {
+//     if (e.target.classList.contains("conversation-menu-btn")) {
+//       const dropdown = e.target.nextElementSibling;
+//       const allDropdowns = document.querySelectorAll(
+//         ".conversation-menu-dropdown"
+//       );
+
+//       // Close all other dropdowns
+//       allDropdowns.forEach((d) => {
+//         if (d !== dropdown) d.classList.remove("active");
+//       });
+
+//       // Toggle current dropdown
+//       dropdown.classList.toggle("active");
+//       e.stopPropagation();
+//     } else {
+//       // Close all dropdowns when clicking elsewhere
+//       document.querySelectorAll(".conversation-menu-dropdown").forEach((d) => {
+//         d.classList.remove("active");
+//       });
+//     }
+//   });
+// }
+function setupNavEvents(nav, sidebar, toggleBtn, newChatBtn, logoutBtn) {
   // Toggle sidebar
   toggleBtn.addEventListener("click", () => {
     sidebar.classList.toggle("active");
@@ -151,6 +258,11 @@ function setupNavEvents(nav, sidebar, toggleBtn, newChatBtn) {
   newChatBtn.addEventListener("click", async () => {
     await startNewConversation();
     sidebar.classList.remove("active");
+  });
+
+  // Logout button
+  logoutBtn.addEventListener("click", () => {
+    logout();
   });
 
   // Close sidebar when clicking outside
@@ -184,7 +296,6 @@ function setupNavEvents(nav, sidebar, toggleBtn, newChatBtn) {
     }
   });
 }
-
 // Conversation actions
 export async function enterConversation(convoId) {
   try {

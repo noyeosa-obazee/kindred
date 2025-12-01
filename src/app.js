@@ -76,6 +76,12 @@ export function setCurrentUser(user) {
   currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 }
 
+// export function logout() {
+//   currentUser = null;
+//   sessionStorage.removeItem("currentUser");
+//   location.reload(); // Simple way to reset the app
+// }
+// Already exists in your app.js, just ensure it's exported
 export function logout() {
   currentUser = null;
   sessionStorage.removeItem("currentUser");
