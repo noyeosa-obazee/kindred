@@ -2,11 +2,17 @@ import { GoogleGenAI } from "@google/genai";
 import { authDB } from "./app.js";
 
 const ai = new GoogleGenAI({
-  apiKey: "AIzaSyAgi2QEFzcNT_tBIXGId8aSguqgnXiZnvs",
+  apiKey: "AIzaSyCsJauuBSb8v6Qh8sPhBmMJNLfQbXnFtsE",
 });
 
 const chatSessions = new Map();
 
+/**
+ * Generates a response using an existing or new chat session.
+ * @param {string} prompt - The user's message.
+ * @param {string} conversationId - The ID of the conversation.
+ * @returns {Promise<string>} The AI's text response.
+ */
 async function generateResponse(prompt, conversationId) {
   try {
     // Get or create chat session
@@ -47,10 +53,8 @@ async function generateResponse(prompt, conversationId) {
       }
     }
 
-    // Send message using the chat session
-    const response = await chatSession.sendMessage({
-      message: prompt,
-    });
+    // Use the simple string for sendMessage in a chat session
+    const response = await chatSession.sendMessage(prompt);
 
     console.log("AI Response:", response.text);
     return response.text;
@@ -61,17 +65,23 @@ async function generateResponse(prompt, conversationId) {
   }
 }
 
-// Fallback function in case chat fails
+/**
+ * Fallback function in case chat fails.
+ * @param {string} prompt - The user's message.
+ * @returns {Promise<string>} The AI's text response.
+ */
 async function generateFallbackResponse(prompt) {
   try {
+    // The `contents` must be an array of content objects.
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: prompt,
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         systemInstruction:
           "You are an expert relationship coach, providing empathetic and constructive advice on various relationship topics. Focus solely on relationship-related queries and offer practical guidance.",
       },
     });
+
     return response.text;
   } catch (fallbackError) {
     console.error("Fallback generation also failed:", fallbackError);
